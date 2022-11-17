@@ -1,0 +1,30 @@
+-- This is the script I used to geocode the zipcodes for each property address because they were not included and I needed them to match the county to the property.
+
+function geo2zip(a) {
+  var response=Maps.newGeocoder()
+    .reverseGeocode(lat(a),long(a));
+  return response.results[0].formatted_address.split(',')[2].trim().split(' ')[1];
+}
+function lat(pointa) {
+ var response = Maps.newGeocoder()
+     .geocode(pointa);
+  return response.results[0].geometry.location.lat
+}
+function long(pointa) {
+  var response = Maps.newGeocoder()
+     .geocode(pointa);
+  return response.results[0].geometry.location.lng
+}
+
+-- Then I used this formula within the sheet to execute the script
+
+=geo2zip(F2)
+
+-- I used this formula to search for the property county using the newly identified zip code based on a list of postal codes and counties I downloaded.
+
+=VLOOKUP(H2,'Mississippi Zip Codes & Counties'!$A$2:$B$424, 2, FALSE)
+
+-- Finally this formula looks up if that county is present on the list of counties that are identified as persistent poverty counties.
+
+=IF((VLOOKUP(I2,'Persistent Poverty Counties'!B3:B50)), VLOOKUP(I2, 'Persistent Poverty Counties'!B3:C50, 2, FALSE), FALSE)
+
